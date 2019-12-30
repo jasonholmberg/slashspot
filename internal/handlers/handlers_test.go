@@ -125,6 +125,28 @@ func Test_spotCommandHandler(t *testing.T) {
 			},
 			expectedResponse: fmt.Sprintf(SpotDropRegTemplate, "13"),
 		},
+		{
+			name: "Test reg command",
+			args: args{
+				cmd: &slack.SlashCommand{
+					Text:     "reg 14",
+					UserName: "scooby",
+				},
+				rr: httptest.NewRecorder(),
+			},
+			expectedResponse: fmt.Sprintf(SpotRegisteredTemplate, "14"),
+		},
+		{
+			name: "Test drop command",
+			args: args{
+				cmd: &slack.SlashCommand{
+					Text:     "drop all",
+					UserName: "scooby",
+				},
+				rr: httptest.NewRecorder(),
+			},
+			expectedResponse: fmt.Sprintf(SpotDropAllRegTemplate, "scooby"),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -371,6 +393,25 @@ func Test_handleUnknown(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := handleUnknown(tt.args.action); got != tt.want {
 				t.Errorf("handleUnknown() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_handleVersion(t *testing.T) {
+	tests := []struct {
+		name string
+		want string
+	}{
+		{
+			name: "Should return version text",
+			want: fmt.Sprintf(VersionText, "undefined","undefined","undefined"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := handleVersion(); got != tt.want {
+				t.Errorf("handleVersion() = %v, want %v", got, tt.want)
 			}
 		})
 	}
