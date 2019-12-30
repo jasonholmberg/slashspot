@@ -7,7 +7,7 @@ build: clean
 	go build -o bin/slashspot ./cmd/slashspot 
 
 run: build 
-	cp config/.env.template .env
+	echo "Make sure you set up the .env file"
 	./bin/slashspot
 
 clean:
