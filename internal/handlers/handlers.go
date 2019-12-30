@@ -19,13 +19,15 @@ import (
 const (
 	// HelpText - the standard help text
 	HelpText = `
-	*Spot-Bot Help*:
-	With Spot-Bot you can find, reserve and register parking spots.
+	*Slash-Spot Help*:
+	With Slash-Spot you can find, reserve and register parking spots.
 
-	'/spot [find or open]' will deliver a list of spots available today
-	'/spot [claim or take or reserve] <spot-id>' will take/reserve a spot or tell you if it is taken
-	'/spot [reg or register or set] <spot-id> [date]' will make a spot available for use for the day. 
-	    If a data is give, the spot will be made available for that date.
+	*/spot find or open* - will deliver a list of spots available today
+	*/spot claim or take or reserve <spot-id>* - will attempt claim/take/reserve the requested spot
+	*/spot reg or register or set <spot-id> [date]* - will make a spot available for use for the day. 
+		If a data is given, the spot will be made available for that date. That date must be in the future.
+	*/spot drop <spot-id>* - will attempt to drop a spot registration as long as your are the registering user
+	*/spot drop all* - will attempt to drop all spots you have registered.
 	`
 	// IDKBlank - I don't know message template
 	IDKBlank = "I don't know what you mean, use `/spot help` for some...help."
@@ -34,7 +36,7 @@ const (
 	IDKTemplate = "I don't know what '%s' means, use `/spot help` for some...help."
 
 	// OpenSpotsTemplate - Open spots template
-	OpenSpotsTemplate = "The follow spots are available: %v"
+	OpenSpotsTemplate = "The follow spots are available today: %v"
 
 	// NoSpotsAvailable - No spots
 	NoSpotsAvailable = "There are currently no available registered spots."
@@ -43,10 +45,10 @@ const (
 	SpotClaimedTemplate = "You have claimed spot: %v"
 
 	// SpotClaimErrorTemplate - Claim error template
-	SpotClaimErrorTemplate = "Unable to handle your claim: %s"
+	SpotClaimErrorTemplate = "The spot %s is not available today or has not been registered as available"
 
 	// SpotRegisteredTemplate - Spot registered template
-	SpotRegisteredTemplate = "You have reggistered spot %s. Thank you for sharing"
+	SpotRegisteredTemplate = "You have registered spot %s. Thank you for sharing"
 
 	// SpotDupeRegistrationErrorTemplate - Spot registration error
 	SpotDupeRegistrationErrorTemplate = "The Spot %v has already been register by %v"
@@ -143,7 +145,7 @@ func handleRegister(cmd *slack.SlashCommand, params []string) string {
 		return IDKBlank
 	}
 	if len(params) == 2 {
-		spot, err = store.Register(params[1], cmd.UserID, time.Now())
+		spot, err = store.Register(params[1], cmd.UserName, time.Now())
 		if err != nil {
 			return fmt.Sprintf(SpotDupeRegistrationErrorTemplate, params[1], spot.RegisteredBy)
 		}
@@ -158,7 +160,7 @@ func handleRegister(cmd *slack.SlashCommand, params []string) string {
 		if util.BeforeNow(openDate) {
 			return fmt.Sprintf(SpotPastDateRegistrationErrorTemplate, params[2])
 		}
-		spot, err = store.Register(params[1], cmd.UserID, openDate)
+		spot, err = store.Register(params[1], cmd.UserName, openDate)
 		if err != nil {
 			return fmt.Sprintf(SpotDupeRegistrationErrorTemplate, params[1], spot.RegisteredBy)
 		}
@@ -170,9 +172,9 @@ func handleClaim(cmd *slack.SlashCommand, params []string) string {
 	if len(params) < 2 {
 		return IDKBlank
 	}
-	spot, err := store.Claim(params[1], cmd.UserID)
+	spot, err := store.Claim(params[1], cmd.UserName)
 	if err != nil {
-		return fmt.Sprintf(SpotClaimErrorTemplate, err)
+		return fmt.Sprintf(SpotClaimErrorTemplate, params[1])
 	}
 	return fmt.Sprintf(SpotClaimedTemplate, spot.ID)
 }
@@ -182,10 +184,10 @@ func handleDrop(cmd *slack.SlashCommand, params []string) string {
 		return IDKBlank
 	}
 	if strings.ToLower(params[1]) == "all" {
-		store.DropAllRegistrations(cmd.UserID)
-		return fmt.Sprintf("All spots registered by %s", cmd.UserID)
+		store.DropAllRegistrations(cmd.UserName)
+		return fmt.Sprintf("All spots registered by %s", cmd.UserName)
 	}
-	err := store.DropRegistration(params[1], cmd.UserID)
+	err := store.DropRegistration(params[1], cmd.UserName)
 	if err != nil {
 		return fmt.Sprintf(SpotDropRegErrorTemplate, params[1])
 	}

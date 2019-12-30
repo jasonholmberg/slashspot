@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jasonholmberg/slashspot/internal/store"
 	"github.com/joho/godotenv"
 	"github.com/nlopes/slack"
+	"github.com/jasonholmberg/slashspot/internal/store"
 	"gotest.tools/v3/assert"
 )
 
@@ -42,7 +42,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			args: args{
 				cmd: &slack.SlashCommand{
 					Text:   "",
-					UserID: "scooby",
+					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),
 			},
@@ -53,7 +53,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			args: args{
 				cmd: &slack.SlashCommand{
 					Text:   "help",
-					UserID: "scooby",
+					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),
 			},
@@ -64,7 +64,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			args: args{
 				cmd: &slack.SlashCommand{
 					Text:   "find",
-					UserID: "scooby",
+					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),
 			},
@@ -75,7 +75,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			args: args{
 				cmd: &slack.SlashCommand{
 					Text:   "bacon",
-					UserID: "scooby",
+					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),
 			},
@@ -86,7 +86,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			args: args{
 				cmd: &slack.SlashCommand{
 					Text:   "reg 12",
-					UserID: "scooby",
+					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),
 			},
@@ -97,7 +97,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			args: args{
 				cmd: &slack.SlashCommand{
 					Text:   "take 12",
-					UserID: "scooby",
+					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),
 			},
@@ -108,7 +108,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			args: args{
 				cmd: &slack.SlashCommand{
 					Text:   "reg 13",
-					UserID: "scooby",
+					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),
 			},
@@ -119,7 +119,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			args: args{
 				cmd: &slack.SlashCommand{
 					Text:   "drop 13",
-					UserID: "scooby",
+					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),
 			},
@@ -241,7 +241,7 @@ func Test_handleRegister(t *testing.T) {
 			args: args{
 				params: []string{"reg", "A1"},
 				cmd: &slack.SlashCommand{
-					UserID: "yourmom",
+					UserName: "yourmom",
 				},
 			},
 			want: fmt.Sprintf(SpotRegisteredTemplate, "A1"),
@@ -251,7 +251,7 @@ func Test_handleRegister(t *testing.T) {
 			args: args{
 				params: []string{"reg", "A2", time.Now().AddDate(0, 0, 1).Format(store.SpotDateFormat)},
 				cmd: &slack.SlashCommand{
-					UserID: "yourmom",
+					UserName: "yourmom",
 				},
 			},
 			want: fmt.Sprintf(SpotRegisteredTemplate, "A2"),
@@ -261,7 +261,7 @@ func Test_handleRegister(t *testing.T) {
 			args: args{
 				params: []string{"reg", "A2", time.Now().AddDate(0, 0, -1).Format(store.SpotDateFormat)},
 				cmd: &slack.SlashCommand{
-					UserID: "yourmom",
+					UserName: "yourmom",
 				},
 			},
 			want: fmt.Sprintf(SpotPastDateRegistrationErrorTemplate, time.Now().AddDate(0, 0, -1).Format(store.SpotDateFormat)),
@@ -293,7 +293,7 @@ func Test_handleClaim(t *testing.T) {
 			args: args{
 				params: []string{"take", "B4"},
 				cmd: &slack.SlashCommand{
-					UserID: "ponyboy",
+					UserName: "ponyboy",
 				},
 			},
 			want: fmt.Sprintf(SpotClaimedTemplate, "B4"),
@@ -303,7 +303,7 @@ func Test_handleClaim(t *testing.T) {
 			args: args{
 				params: []string{"take"},
 				cmd: &slack.SlashCommand{
-					UserID: "ponyboy",
+					UserName: "ponyboy",
 				},
 			},
 			want: IDKBlank,
@@ -313,10 +313,10 @@ func Test_handleClaim(t *testing.T) {
 			args: args{
 				params: []string{"take", "X11"},
 				cmd: &slack.SlashCommand{
-					UserID: "ponyboy",
+					UserName: "ponyboy",
 				},
 			},
-			want: fmt.Sprintf(SpotClaimErrorTemplate, "spot X11 not available"),
+			want: fmt.Sprintf(SpotClaimErrorTemplate, "X11"),
 		},
 	}
 	for _, tt := range tests {
