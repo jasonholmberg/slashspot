@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jasonholmberg/slashspot/config"
 	"github.com/jasonholmberg/slashspot/internal/store"
 	"github.com/jasonholmberg/slashspot/internal/util"
 	"github.com/nlopes/slack"
@@ -18,17 +19,25 @@ import (
 
 const (
 	// HelpText - the standard help text
-	HelpText = `
-	*Slash-Spot Help*:
-	With Slash-Spot you can find, reserve and register parking spots.
+	HelpText = `*Slash-Spot Help*:
+With Slash-Spot you can find, reserve and register parking spots.
 
-	*/spot find or open* - will deliver a list of spots available today
-	*/spot claim or take or reserve <spot-id>* - will attempt claim/take/reserve the requested spot
-	*/spot reg or register or set <spot-id> [date]* - will make a spot available for use for the day. 
-		If a data is given, the spot will be made available for that date. That date must be in the future.
-	*/spot drop <spot-id>* - will attempt to drop a spot registration as long as your are the registering user
-	*/spot drop all* - will attempt to drop all spots you have registered.
-	`
+*/spot help* - returns the help text you're currently reading
+*/spot version* - returns version information about this utility
+*/spot find or open* - will deliver a list of spots available today
+*/spot claim or take or reserve <spot-id>* - will attempt claim/take/reserve the requested spot
+*/spot reg or register or set <spot-id> [date]* - will make a spot available for use for the day. 
+	If a data is given, the spot will be made available for that date. That date must be in the future.
+*/spot drop <spot-id>* - will attempt to drop a spot registration as long as your are the registering user
+*/spot drop all* - will attempt to drop all spots you have registered.
+`
+
+	// VersionText - the version text
+	VersionText = `*Slash-Spot*
+- *Version:* %s
+- *Git Hash:* %s
+- *Built:* %s
+`
 	// IDKBlank - I don't know message template
 	IDKBlank = "I don't know what you mean, use `/spot help` for some...help."
 
@@ -61,6 +70,9 @@ const (
 
 	// SpotDropRegTemplate - Spot drop registration template
 	SpotDropRegTemplate = "Registration for spot %s has been dropped"
+
+	// SpotDropAllRegTemplate - Spot drop all registrations template
+	SpotDropAllRegTemplate = "All spots registered by %s have been dropped"
 
 	// SpotDropRegErrorTemplate - Error respose template for drop registration error
 	SpotDropRegErrorTemplate = "Unable to drop registration %v. The registration has been claimed or you did not create this registration."
@@ -115,6 +127,8 @@ func spotCommandHandler(cmd *slack.SlashCommand, w http.ResponseWriter) {
 		response = handleClaim(cmd, params)
 	case "drop":
 		response = handleDrop(cmd, params)
+	case "version":
+		response = handleVersion()
 	default:
 		response = handleUnknown(action)
 	}
@@ -123,6 +137,10 @@ func spotCommandHandler(cmd *slack.SlashCommand, w http.ResponseWriter) {
 
 func handleBlank() string {
 	return IDKBlank
+}
+
+func handleVersion() string {
+	return fmt.Sprintf(VersionText, config.Version, config.GitHash, config.BuildTime)
 }
 
 func handleFind(params []string) string {
@@ -185,7 +203,7 @@ func handleDrop(cmd *slack.SlashCommand, params []string) string {
 	}
 	if strings.ToLower(params[1]) == "all" {
 		store.DropAllRegistrations(cmd.UserName)
-		return fmt.Sprintf("All spots registered by %s", cmd.UserName)
+		return fmt.Sprintf(SpotDropAllRegTemplate, cmd.UserName)
 	}
 	err := store.DropRegistration(params[1], cmd.UserName)
 	if err != nil {
