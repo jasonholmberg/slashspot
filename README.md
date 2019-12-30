@@ -6,6 +6,8 @@ This is a slash command based bot for Slack to help increase the visibility of a
 ## Usage:
 `/spot help` will return the help text
 
+`/spot version` will return version and build information
+
 `/spot [find or open]` will return a list of spots available today
 
 `/spot [claim or take or reserve] <spot-id>` will take/reserve a spot or tell you if it is taken
@@ -41,5 +43,12 @@ export SPOT_SLACK_SIGNING_SECRET=[YOUR_SIGNING_SECRET_HERE]
 export SPOT_SLACK_VERIFICATION_TOKEN=[YOUR_VERIFICATION_TOKEN]
 ```
 
-Deploy this some place after compiling it for the approriate platform. And point you Slack App to the correct location.
+Deploy this some place after compiling it for the approriate platform, and point your Slack App to the correct location. The URL should be something like `https://my.host.com/command`
 
+## Development Notes
+
+I followed the suggestions from this article:
+
+https://medium.com/@emilygoldfein/creating-slack-slash-commands-using-go-3cea3b3f0920
+
+To set up my local `ngrok` instance so that I could test /Spot from a real Slack workspace.  
