@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jasonholmberg/slashspot/internal/store"
 	"github.com/joho/godotenv"
 	"github.com/nlopes/slack"
-	"github.com/jasonholmberg/slashspot/internal/store"
 	"gotest.tools/v3/assert"
 )
 
@@ -41,7 +41,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			name: "Test no spot command",
 			args: args{
 				cmd: &slack.SlashCommand{
-					Text:   "",
+					Text:     "",
 					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),
@@ -52,7 +52,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			name: "Test help command",
 			args: args{
 				cmd: &slack.SlashCommand{
-					Text:   "help",
+					Text:     "help",
 					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),
@@ -63,7 +63,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			name: "Test find command",
 			args: args{
 				cmd: &slack.SlashCommand{
-					Text:   "find",
+					Text:     "find",
 					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),
@@ -74,7 +74,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			name: "Test unknown command",
 			args: args{
 				cmd: &slack.SlashCommand{
-					Text:   "bacon",
+					Text:     "bacon",
 					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),
@@ -85,7 +85,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			name: "Test reg command",
 			args: args{
 				cmd: &slack.SlashCommand{
-					Text:   "reg 12",
+					Text:     "reg 12",
 					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),
@@ -96,7 +96,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			name: "Test claim command",
 			args: args{
 				cmd: &slack.SlashCommand{
-					Text:   "take 12",
+					Text:     "take 12",
 					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),
@@ -107,7 +107,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			name: "Test reg command",
 			args: args{
 				cmd: &slack.SlashCommand{
-					Text:   "reg 13",
+					Text:     "reg 13",
 					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),
@@ -118,7 +118,7 @@ func Test_spotCommandHandler(t *testing.T) {
 			name: "Test drop command",
 			args: args{
 				cmd: &slack.SlashCommand{
-					Text:   "drop 13",
+					Text:     "drop 13",
 					UserName: "scooby",
 				},
 				rr: httptest.NewRecorder(),

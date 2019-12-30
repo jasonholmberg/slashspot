@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/joho/godotenv"
 	spot "github.com/jasonholmberg/slashspot/internal"
+	"github.com/joho/godotenv"
 )
 
 func main() {

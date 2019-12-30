@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nlopes/slack"
 	"github.com/jasonholmberg/slashspot/internal/store"
 	"github.com/jasonholmberg/slashspot/internal/util"
+	"github.com/nlopes/slack"
 )
 
 const (
