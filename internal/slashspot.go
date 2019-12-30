@@ -14,7 +14,7 @@ import (
 func Run() {
 	store.Open()
 	http.HandleFunc("/command", handlers.SlashCommandHandler)
-	port := os.Getenv("BOT_SERVER_PORT")
+	port := os.Getenv("SPOT_SERVER_PORT")
 	log.Println("Spot's listening on", port)
 	http.ListenAndServe(fmt.Sprint(":", port), nil)
 }
