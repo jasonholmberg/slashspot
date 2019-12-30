@@ -1,3 +1,5 @@
+![](https://github.com/jasonholmberg/slashspot/workflows/Go/badge.svg)
+
 # /Spot
 This is a slash command based bot for Slack to help increase the visibility of available parking spots in a common location, like a parking gargare where many spot are reserved but unused. A Slack user could leverage `/spot` find an available spot and claim it. A holder of assigned parking spot can also register a spot's availability with `/spot` so that other may use it in the holder's absence. 
 
