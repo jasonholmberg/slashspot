@@ -1,4 +1,4 @@
-.PHONY: all test clean
+.PHONY: all test build clean
 
 test: 
 	go test -cover ./... 

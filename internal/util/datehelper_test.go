@@ -17,14 +17,14 @@ func TestBeforeNow(t *testing.T) {
 		{
 			name: "should be before",
 			args: args{
-				test: time.Now().AddDate(0,0,-1),
+				test: time.Now().AddDate(0, 0, -1),
 			},
 			want: true,
 		},
 		{
 			name: "should not be before",
 			args: args{
-				test: time.Now().AddDate(0,0,1),
+				test: time.Now().AddDate(0, 0, 1),
 			},
 			want: false,
 		},
@@ -57,14 +57,14 @@ func TestAfterNow(t *testing.T) {
 		{
 			name: "should be after",
 			args: args{
-				test: time.Now().AddDate(0,0,1),
+				test: time.Now().AddDate(0, 0, 1),
 			},
 			want: true,
 		},
 		{
 			name: "should not be after",
 			args: args{
-				test: time.Now().AddDate(0,0,-1),
+				test: time.Now().AddDate(0, 0, -1),
 			},
 			want: false,
 		},
