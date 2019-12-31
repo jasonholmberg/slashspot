@@ -1,4 +1,4 @@
-name: Go
+name: Validate
 on: 
   push:
     branches: 
