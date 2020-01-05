@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/jasonholmberg/slashspot/internal/store"
+	"github.com/jasonholmberg/slashspot/internal/util"
 	"github.com/joho/godotenv"
 	"github.com/nlopes/slack"
 	"gotest.tools/v3/assert"
@@ -168,32 +169,32 @@ func testSpots() []store.Spot {
 	return []store.Spot{
 		{
 			ID:           "B0",
-			OpenDate:     time.Now().AddDate(0, 0, -1).Format(store.SpotDateFormat),
-			RegDate:      time.Now().Format(store.SpotDateFormat),
+			OpenDate:     time.Now().AddDate(0, 0, -1).Format(util.SpotDateFormat),
+			RegDate:      time.Now().Format(util.SpotDateFormat),
 			RegisteredBy: "Fred",
 		},
 		{
 			ID:           "B1",
-			OpenDate:     time.Now().Format(store.SpotDateFormat),
-			RegDate:      time.Now().Format(store.SpotDateFormat),
+			OpenDate:     time.Now().Format(util.SpotDateFormat),
+			RegDate:      time.Now().Format(util.SpotDateFormat),
 			RegisteredBy: "YourMom",
 		},
 		{
 			ID:           "B2",
-			OpenDate:     time.Now().Format(store.SpotDateFormat),
-			RegDate:      time.Now().Format(store.SpotDateFormat),
+			OpenDate:     time.Now().Format(util.SpotDateFormat),
+			RegDate:      time.Now().Format(util.SpotDateFormat),
 			RegisteredBy: "YourMom",
 		},
 		{
 			ID:           "B3",
-			OpenDate:     time.Now().AddDate(0, 0, 1).Format(store.SpotDateFormat),
-			RegDate:      time.Now().Format(store.SpotDateFormat),
+			OpenDate:     time.Now().AddDate(0, 0, 1).Format(util.SpotDateFormat),
+			RegDate:      time.Now().Format(util.SpotDateFormat),
 			RegisteredBy: "FredsMom",
 		},
 		{
 			ID:           "B4",
-			OpenDate:     time.Now().Format(store.SpotDateFormat),
-			RegDate:      time.Now().Format(store.SpotDateFormat),
+			OpenDate:     time.Now().Format(util.SpotDateFormat),
+			RegDate:      time.Now().Format(util.SpotDateFormat),
 			RegisteredBy: "BarneysMom",
 		},
 	}
@@ -202,7 +203,7 @@ func testSpots() []store.Spot {
 // registers spots for test and ignores errors
 func registerSpotsForTest(spots []store.Spot) {
 	for _, spot := range spots {
-		od, _ := time.Parse(store.SpotDateFormat, spot.OpenDate)
+		od, _ := time.Parse(util.SpotDateFormat, spot.OpenDate)
 		store.Register(spot.ID, spot.RegisteredBy, od)
 	}
 }
@@ -271,7 +272,7 @@ func Test_handleRegister(t *testing.T) {
 		{
 			name: "Should register a spot for one day in the future",
 			args: args{
-				params: []string{"reg", "A2", time.Now().AddDate(0, 0, 1).Format(store.SpotDateFormat)},
+				params: []string{"reg", "A2", time.Now().AddDate(0, 0, 1).Format(util.SpotDateFormat)},
 				cmd: &slack.SlashCommand{
 					UserName: "yourmom",
 				},
@@ -281,12 +282,12 @@ func Test_handleRegister(t *testing.T) {
 		{
 			name: "Should not register a spot for day in the past",
 			args: args{
-				params: []string{"reg", "A2", time.Now().AddDate(0, 0, -1).Format(store.SpotDateFormat)},
+				params: []string{"reg", "A2", time.Now().AddDate(0, 0, -1).Format(util.SpotDateFormat)},
 				cmd: &slack.SlashCommand{
 					UserName: "yourmom",
 				},
 			},
-			want: fmt.Sprintf(SpotPastDateRegistrationErrorTemplate, time.Now().AddDate(0, 0, -1).Format(store.SpotDateFormat)),
+			want: fmt.Sprintf(SpotPastDateRegistrationErrorTemplate, time.Now().AddDate(0, 0, -1).Format(util.SpotDateFormat)),
 		},
 	}
 	for _, tt := range tests {
@@ -405,7 +406,7 @@ func Test_handleVersion(t *testing.T) {
 	}{
 		{
 			name: "Should return version text",
-			want: fmt.Sprintf(VersionText, "undefined","undefined","undefined"),
+			want: fmt.Sprintf(VersionText, "undefined", "undefined", "undefined"),
 		},
 	}
 	for _, tt := range tests {

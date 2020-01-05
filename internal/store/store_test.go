@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jasonholmberg/slashspot/internal/util"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 )
@@ -50,12 +51,12 @@ func TestNewSpot(t *testing.T) {
 			args: args{
 				ID:           "11",
 				registeredBy: "jjrambo",
-				openDate:     time.Now(),
+				openDate:     localTime(),
 			},
 			want: Spot{
 				ID:           "11",
-				OpenDate:     time.Now().Format(SpotDateFormat),
-				RegDate:      time.Now().Format(SpotDateFormat),
+				OpenDate:     localTime().Format(util.SpotDateFormat),
+				RegDate:      localTime().Format(util.SpotDateFormat),
 				RegisteredBy: "jjrambo",
 			},
 		},
@@ -64,12 +65,12 @@ func TestNewSpot(t *testing.T) {
 			args: args{
 				ID:           "11",
 				registeredBy: "jjrambo",
-				openDate:     time.Now().AddDate(0, 0, 1),
+				openDate:     localTime().AddDate(0, 0, 1),
 			},
 			want: Spot{
 				ID:           "11",
-				OpenDate:     time.Now().AddDate(0, 0, 1).Format(SpotDateFormat),
-				RegDate:      time.Now().Format(SpotDateFormat),
+				OpenDate:     localTime().AddDate(0, 0, 1).Format(util.SpotDateFormat),
+				RegDate:      localTime().Format(util.SpotDateFormat),
 				RegisteredBy: "jjrambo",
 			},
 		},
@@ -99,19 +100,19 @@ func TestSpot_key(t *testing.T) {
 			name: "Should return a key",
 			fields: fields{
 				ID:           "44",
-				OpenDate:     time.Now(),
-				RegDate:      time.Now(),
+				OpenDate:     localTime(),
+				RegDate:      localTime(),
 				RegisteredBy: "YourMom",
 			},
-			want: fmt.Sprintf("%s-%s", "44", time.Now().Format(SpotDateFormat)),
+			want: fmt.Sprintf("%s-%s", "44", localTime().Format(util.SpotDateFormat)),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			spot := Spot{
 				ID:           tt.fields.ID,
-				OpenDate:     tt.fields.OpenDate.Format(SpotDateFormat),
-				RegDate:      tt.fields.RegDate.Format(SpotDateFormat),
+				OpenDate:     tt.fields.OpenDate.Format(util.SpotDateFormat),
+				RegDate:      tt.fields.RegDate.Format(util.SpotDateFormat),
 				RegisteredBy: tt.fields.RegisteredBy,
 			}
 			if got := spot.key(); got != tt.want {
@@ -135,9 +136,9 @@ func Test_formatKey(t *testing.T) {
 			name: "Should format a correct key",
 			args: args{
 				id:   "B11",
-				date: time.Now(),
+				date: localTime(),
 			},
-			want: fmt.Sprintf("%s-%s", "B11", time.Now().Format(SpotDateFormat)),
+			want: fmt.Sprintf("%s-%s", "B11", localTime().Format(util.SpotDateFormat)),
 		},
 	}
 	for _, tt := range tests {
@@ -153,36 +154,40 @@ func cleanup() {
 	os.Remove(DataFilePath())
 }
 
+func localTime() time.Time {
+	return time.Now().In(time.Local)
+}
+
 func testSpots() []Spot {
 	return []Spot{
 		{
 			ID:           "B0",
-			OpenDate:     time.Now().AddDate(0, 0, -1).Format(SpotDateFormat),
-			RegDate:      time.Now().Format(SpotDateFormat),
+			OpenDate:     localTime().AddDate(0, 0, -1).Format(util.SpotDateFormat),
+			RegDate:      localTime().Format(util.SpotDateFormat),
 			RegisteredBy: "Fred",
 		},
 		{
 			ID:           "B1",
-			OpenDate:     time.Now().Format(SpotDateFormat),
-			RegDate:      time.Now().Format(SpotDateFormat),
+			OpenDate:     localTime().Format(util.SpotDateFormat),
+			RegDate:      localTime().Format(util.SpotDateFormat),
 			RegisteredBy: "YourMom",
 		},
 		{
 			ID:           "B2",
-			OpenDate:     time.Now().Format(SpotDateFormat),
-			RegDate:      time.Now().Format(SpotDateFormat),
+			OpenDate:     localTime().Format(util.SpotDateFormat),
+			RegDate:      localTime().Format(util.SpotDateFormat),
 			RegisteredBy: "YourMom",
 		},
 		{
 			ID:           "B3",
-			OpenDate:     time.Now().AddDate(0, 0, 1).Format(SpotDateFormat),
-			RegDate:      time.Now().Format(SpotDateFormat),
+			OpenDate:     localTime().AddDate(0, 0, 1).Format(util.SpotDateFormat),
+			RegDate:      localTime().Format(util.SpotDateFormat),
 			RegisteredBy: "FredsMom",
 		},
 		{
 			ID:           "B4",
-			OpenDate:     time.Now().Format(SpotDateFormat),
-			RegDate:      time.Now().Format(SpotDateFormat),
+			OpenDate:     localTime().Format(util.SpotDateFormat),
+			RegDate:      localTime().Format(util.SpotDateFormat),
 			RegisteredBy: "BarneysMom",
 		},
 	}
@@ -191,13 +196,13 @@ func testSpots() []Spot {
 // registers spots for test and ignores errors
 func registerSpotsForTest(spots []Spot) {
 	for _, spot := range spots {
-		od, _ := time.Parse(SpotDateFormat, spot.OpenDate)
+		od, _ := time.Parse(util.SpotDateFormat, spot.OpenDate)
 		Register(spot.ID, spot.RegisteredBy, od)
 	}
 }
 
 func TestSpotBase_Find(t *testing.T) {
-	defer cleanup()
+	// defer cleanup()
 	type fields struct {
 		spots []Spot
 	}
@@ -216,27 +221,27 @@ func TestSpotBase_Find(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "Should find two available",
+			name: "Should find three available",
 			fields: fields{
 				spots: testSpots(),
 			},
 			want: map[string]Spot{
-				formatKey("B1", time.Now()): Spot{
+				formatKey("B1", localTime()): Spot{
 					ID:           "B1",
-					OpenDate:     time.Now().Format(SpotDateFormat),
-					RegDate:      time.Now().Format(SpotDateFormat),
+					OpenDate:     localTime().Format(util.SpotDateFormat),
+					RegDate:      localTime().Format(util.SpotDateFormat),
 					RegisteredBy: "YourMom",
 				},
-				formatKey("B2", time.Now()): Spot{
+				formatKey("B2", localTime()): Spot{
 					ID:           "B2",
-					OpenDate:     time.Now().Format(SpotDateFormat),
-					RegDate:      time.Now().Format(SpotDateFormat),
+					OpenDate:     localTime().Format(util.SpotDateFormat),
+					RegDate:      localTime().Format(util.SpotDateFormat),
 					RegisteredBy: "YourMom",
 				},
-				formatKey("B4", time.Now()): Spot{
+				formatKey("B4", localTime()): Spot{
 					ID:           "B4",
-					OpenDate:     time.Now().Format(SpotDateFormat),
-					RegDate:      time.Now().Format(SpotDateFormat),
+					OpenDate:     localTime().Format(util.SpotDateFormat),
+					RegDate:      localTime().Format(util.SpotDateFormat),
 					RegisteredBy: "BarneysMom",
 				},
 			},
@@ -287,8 +292,8 @@ func TestSpotBase_Claim(t *testing.T) {
 			},
 			want: Spot{
 				ID:           "B1",
-				OpenDate:     time.Now().Format(SpotDateFormat),
-				RegDate:      time.Now().Format(SpotDateFormat),
+				OpenDate:     localTime().Format(util.SpotDateFormat),
+				RegDate:      localTime().Format(util.SpotDateFormat),
 				RegisteredBy: "YourMom",
 			},
 			wantErr: false,
@@ -364,13 +369,13 @@ func TestSpotBase_Register(t *testing.T) {
 			args: args{
 				id:       "B11",
 				user:     "pparker",
-				openDate: time.Now(),
+				openDate: localTime(),
 			},
 			want: Spot{
 				ID:           "B11",
 				RegisteredBy: "pparker",
-				OpenDate:     time.Now().Format(SpotDateFormat),
-				RegDate:      time.Now().Format(SpotDateFormat),
+				OpenDate:     localTime().Format(util.SpotDateFormat),
+				RegDate:      localTime().Format(util.SpotDateFormat),
 			},
 			wantErr: false,
 		},
@@ -382,13 +387,13 @@ func TestSpotBase_Register(t *testing.T) {
 			args: args{
 				id:       "B12",
 				user:     "pparker",
-				openDate: time.Now().AddDate(0, 0, 1),
+				openDate: localTime().AddDate(0, 0, 1),
 			},
 			want: Spot{
 				ID:           "B12",
 				RegisteredBy: "pparker",
-				OpenDate:     time.Now().AddDate(0, 0, 1).Format(SpotDateFormat),
-				RegDate:      time.Now().Format(SpotDateFormat),
+				OpenDate:     localTime().AddDate(0, 0, 1).Format(util.SpotDateFormat),
+				RegDate:      localTime().Format(util.SpotDateFormat),
 			},
 			wantErr: false,
 		},
@@ -400,13 +405,13 @@ func TestSpotBase_Register(t *testing.T) {
 			args: args{
 				id:       "B1",
 				user:     "pparker",
-				openDate: time.Now(),
+				openDate: localTime(),
 			},
 			want: Spot{
 				ID:           "B1",
 				RegisteredBy: "YourMom",
-				OpenDate:     time.Now().Format(SpotDateFormat),
-				RegDate:      time.Now().Format(SpotDateFormat),
+				OpenDate:     localTime().Format(util.SpotDateFormat),
+				RegDate:      localTime().Format(util.SpotDateFormat),
 			},
 			wantErr: true,
 		},

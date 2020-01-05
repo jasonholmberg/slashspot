@@ -169,13 +169,11 @@ func handleRegister(cmd *slack.SlashCommand, params []string) string {
 		}
 	}
 	if len(params) > 2 {
-		openDate, err := time.Parse(store.SpotDateFormat, params[2])
+		openDate, err := time.Parse(util.SpotDateFormat, params[2])
 		if err != nil {
 			return fmt.Sprintf(SpotDateFormatRegistrationErrorTemplate, params[2])
 		}
-		fmt.Println(openDate)
-		fmt.Println(time.Now())
-		if util.BeforeNow(openDate) {
+		if util.BeforeNow(params[2]) {
 			return fmt.Sprintf(SpotPastDateRegistrationErrorTemplate, params[2])
 		}
 		spot, err = store.Register(params[1], cmd.UserName, openDate)
