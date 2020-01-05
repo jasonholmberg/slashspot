@@ -18,9 +18,6 @@ import (
 const (
 	// NotAvailable - Not available
 	NotAvailable = "N/A"
-
-	// SpotDateFormat - the default spot date formate
-	SpotDateFormat = "2006-01-02"
 )
 
 var lock sync.Mutex
@@ -64,8 +61,8 @@ func NewSpot(ID string, registeredBy string, openDate time.Time) Spot {
 	}
 	return Spot{
 		ID:           ID,
-		OpenDate:     openDate.Format(SpotDateFormat),
-		RegDate:      now.Format(SpotDateFormat),
+		OpenDate:     openDate.Format(util.SpotDateFormat),
+		RegDate:      now.Format(util.SpotDateFormat),
 		RegisteredBy: registeredBy,
 	}
 }
@@ -75,7 +72,7 @@ func (spot Spot) key() string {
 }
 
 func formatKey(id string, date time.Time) string {
-	return fmt.Sprintf("%v-%s", id, date.Format(SpotDateFormat))
+	return fmt.Sprintf("%v-%s", id, date.Format(util.SpotDateFormat))
 }
 
 // IsOpen - data store is open
@@ -90,14 +87,16 @@ func Find() (map[string]Spot, error) {
 	defer lock.Unlock()
 	load()
 	openSpots := make(map[string]Spot)
+	log.Println("Finding open spots for today")
 	for k, spot := range spotData.store {
-		spotDate, _ := time.Parse(SpotDateFormat, spot.OpenDate)
-		if util.BeforeNow(spotDate) {
-			log.Printf("Cleaning up old registration Id: %v, registered by %v for date: %v", spot.ID, spot.RegisteredBy, spot.OpenDate)
+		if util.BeforeNow(spot.OpenDate) {
+			log.Printf(">Cleaning up old registration Id: %v, registered by %v for date: %v", spot.ID, spot.RegisteredBy, spot.OpenDate)
+			log.Println()
 			delete(spotData.store, k)
 			continue
 		}
-		if util.AfterNow(spotDate) {
+		if util.AfterNow(spot.OpenDate) {
+			log.Printf(">Skipping Id: %v, registered by %v for date: %v", spot.ID, spot.RegisteredBy, spot.OpenDate)
 			continue
 		}
 		openSpots[k] = spot
@@ -139,6 +138,7 @@ func Register(id string, user string, openDate time.Time) (Spot, error) {
 			return spot, fmt.Errorf("spot %v already registered", id)
 		}
 	}
+	log.Printf("Registered Id: %v by %v for date: %v", newSpot.ID, newSpot.RegisteredBy, newSpot.OpenDate)
 	spotData.store[newSpot.key()] = newSpot
 	return newSpot, nil
 }

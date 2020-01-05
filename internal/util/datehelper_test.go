@@ -7,7 +7,7 @@ import (
 
 func TestBeforeNow(t *testing.T) {
 	type args struct {
-		test time.Time
+		test string
 	}
 	tests := []struct {
 		name string
@@ -17,21 +17,21 @@ func TestBeforeNow(t *testing.T) {
 		{
 			name: "should be before",
 			args: args{
-				test: time.Now().AddDate(0, 0, -1),
+				test: time.Now().AddDate(0, 0, -1).Format(SpotDateFormat),
 			},
 			want: true,
 		},
 		{
 			name: "should not be before",
 			args: args{
-				test: time.Now().AddDate(0, 0, 1),
+				test: time.Now().AddDate(0, 0, 1).Format(SpotDateFormat),
 			},
 			want: false,
 		},
 		{
 			name: "should not be before",
 			args: args{
-				test: time.Now(),
+				test: time.Now().Format(SpotDateFormat),
 			},
 			want: false,
 		},
@@ -47,7 +47,7 @@ func TestBeforeNow(t *testing.T) {
 
 func TestAfterNow(t *testing.T) {
 	type args struct {
-		test time.Time
+		test string
 	}
 	tests := []struct {
 		name string
@@ -57,21 +57,21 @@ func TestAfterNow(t *testing.T) {
 		{
 			name: "should be after",
 			args: args{
-				test: time.Now().AddDate(0, 0, 1),
+				test: time.Now().AddDate(0, 0, 1).Format(SpotDateFormat),
 			},
 			want: true,
 		},
 		{
 			name: "should not be after",
 			args: args{
-				test: time.Now().AddDate(0, 0, -1),
+				test: time.Now().AddDate(0, 0, -1).Format(SpotDateFormat),
 			},
 			want: false,
 		},
 		{
 			name: "should not be after",
 			args: args{
-				test: time.Now(),
+				test: time.Now().Format(SpotDateFormat),
 			},
 			want: false,
 		},
