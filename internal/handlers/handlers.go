@@ -12,7 +12,8 @@ import (
 	"time"
 
 	"github.com/jasonholmberg/slashspot/config"
-	"github.com/jasonholmberg/slashspot/internal/store"
+	"github.com/jasonholmberg/slashspot/internal/data"
+	"github.com/jasonholmberg/slashspot/internal/spot"
 	"github.com/jasonholmberg/slashspot/internal/util"
 	"github.com/nlopes/slack"
 )
@@ -144,7 +145,7 @@ func handleVersion() string {
 }
 
 func handleFind(params []string) string {
-	spots, err := store.Find()
+	spots, err := spot.Find()
 	if err != nil {
 		return NoSpotsAvailable
 	}
@@ -157,15 +158,15 @@ func handleFind(params []string) string {
 }
 
 func handleRegister(cmd *slack.SlashCommand, params []string) string {
-	var spot store.Spot
+	var newSpot data.Spot
 	var err error
 	if len(params) <= 1 {
 		return IDKBlank
 	}
 	if len(params) == 2 {
-		spot, err = store.Register(params[1], cmd.UserName, time.Now())
+		newSpot, err = spot.Register(params[1], cmd.UserName, time.Now())
 		if err != nil {
-			return fmt.Sprintf(SpotDupeRegistrationErrorTemplate, params[1], spot.RegisteredBy)
+			return fmt.Sprintf(SpotDupeRegistrationErrorTemplate, params[1], newSpot.RegisteredBy)
 		}
 	}
 	if len(params) > 2 {
@@ -176,19 +177,19 @@ func handleRegister(cmd *slack.SlashCommand, params []string) string {
 		if util.BeforeNow(params[2]) {
 			return fmt.Sprintf(SpotPastDateRegistrationErrorTemplate, params[2])
 		}
-		spot, err = store.Register(params[1], cmd.UserName, openDate)
+		newSpot, err = spot.Register(params[1], cmd.UserName, openDate)
 		if err != nil {
-			return fmt.Sprintf(SpotDupeRegistrationErrorTemplate, params[1], spot.RegisteredBy)
+			return fmt.Sprintf(SpotDupeRegistrationErrorTemplate, params[1], newSpot.RegisteredBy)
 		}
 	}
-	return fmt.Sprintf(SpotRegisteredTemplate, spot.ID)
+	return fmt.Sprintf(SpotRegisteredTemplate, newSpot.ID)
 }
 
 func handleClaim(cmd *slack.SlashCommand, params []string) string {
 	if len(params) < 2 {
 		return IDKBlank
 	}
-	spot, err := store.Claim(params[1], cmd.UserName)
+	spot, err := spot.Claim(params[1], cmd.UserName)
 	if err != nil {
 		return fmt.Sprintf(SpotClaimErrorTemplate, params[1])
 	}
@@ -200,10 +201,10 @@ func handleDrop(cmd *slack.SlashCommand, params []string) string {
 		return IDKBlank
 	}
 	if strings.ToLower(params[1]) == "all" {
-		store.DropAllRegistrations(cmd.UserName)
+		spot.DropAllRegistrations(cmd.UserName)
 		return fmt.Sprintf(SpotDropAllRegTemplate, cmd.UserName)
 	}
-	err := store.DropRegistration(params[1], cmd.UserName)
+	err := spot.DropRegistration(params[1], cmd.UserName)
 	if err != nil {
 		return fmt.Sprintf(SpotDropRegErrorTemplate, params[1])
 	}

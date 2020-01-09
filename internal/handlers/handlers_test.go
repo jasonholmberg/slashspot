@@ -8,7 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jasonholmberg/slashspot/internal/store"
+	"github.com/jasonholmberg/slashspot/internal/data"
+	"github.com/jasonholmberg/slashspot/internal/spot"
 	"github.com/jasonholmberg/slashspot/internal/util"
 	"github.com/joho/godotenv"
 	"github.com/nlopes/slack"
@@ -151,7 +152,7 @@ func Test_spotCommandHandler(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			store.Open()
+			data.Open()
 			spotCommandHandler(tt.args.cmd, tt.args.rr)
 			if tt.args.rr.Code >= 300 {
 				t.Errorf("Spot call return a non 200 response: %v", tt.args.rr.Code)
@@ -162,11 +163,11 @@ func Test_spotCommandHandler(t *testing.T) {
 }
 
 func cleanup() {
-	os.Remove(store.DataFilePath())
+	os.Remove(data.FilePath())
 }
 
-func testSpots() []store.Spot {
-	return []store.Spot{
+func testSpots() []data.Spot {
+	return []data.Spot{
 		{
 			ID:           "B0",
 			OpenDate:     time.Now().AddDate(0, 0, -1).Format(util.SpotDateFormat),
@@ -201,10 +202,10 @@ func testSpots() []store.Spot {
 }
 
 // registers spots for test and ignores errors
-func registerSpotsForTest(spots []store.Spot) {
-	for _, spot := range spots {
-		od, _ := time.Parse(util.SpotDateFormat, spot.OpenDate)
-		store.Register(spot.ID, spot.RegisteredBy, od)
+func registerSpotsForTest(spots []data.Spot) {
+	for _, newSpot := range spots {
+		od, _ := time.Parse(util.SpotDateFormat, newSpot.OpenDate)
+		spot.Register(newSpot.ID, newSpot.RegisteredBy, od)
 	}
 }
 
@@ -212,7 +213,7 @@ func Test_handleFind(t *testing.T) {
 	defer cleanup()
 	type args struct {
 		params []string
-		spots  []store.Spot
+		spots  []data.Spot
 	}
 	tests := []struct {
 		name string
@@ -231,14 +232,14 @@ func Test_handleFind(t *testing.T) {
 			name: "Should not find some spots",
 			args: args{
 				params: []string{"find"},
-				spots:  []store.Spot{},
+				spots:  []data.Spot{},
 			},
 			want: NoSpotsAvailable,
 		},
 	}
 	for _, tt := range tests {
 		cleanup()
-		store.Open()
+		data.Open()
 		registerSpotsForTest(tt.args.spots)
 		t.Run(tt.name, func(t *testing.T) {
 			if got := handleFind(tt.args.params); got != tt.want {
@@ -291,7 +292,7 @@ func Test_handleRegister(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		store.Open()
+		data.Open()
 		t.Run(tt.name, func(t *testing.T) {
 			if got := handleRegister(tt.args.cmd, tt.args.params); got != tt.want {
 				t.Errorf("handleRegister() = %v, want %v", got, tt.want)
@@ -345,7 +346,7 @@ func Test_handleClaim(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cleanup()
-			store.Open()
+			data.Open()
 			registerSpotsForTest(testSpots())
 			if got := handleClaim(tt.args.cmd, tt.args.params); got != tt.want {
 				t.Errorf("handleReserve() = %v, want %v", got, tt.want)
