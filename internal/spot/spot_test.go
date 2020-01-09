@@ -1,4 +1,4 @@
-package store
+package spot
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jasonholmberg/slashspot/internal/data"
 	"github.com/jasonholmberg/slashspot/internal/util"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
@@ -26,8 +27,8 @@ func TestOpen(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			Open()
-			_, err := os.Open(DataFilePath())
+			data.Open()
+			_, err := os.Open(data.FilePath())
 			if err != nil {
 				t.Error("Fialed to open data store:", err)
 			}
@@ -44,7 +45,7 @@ func TestNewSpot(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want Spot
+		want data.Spot
 	}{
 		{
 			name: "Should create a new spot instance",
@@ -53,7 +54,7 @@ func TestNewSpot(t *testing.T) {
 				registeredBy: "jjrambo",
 				openDate:     localTime(),
 			},
-			want: Spot{
+			want: data.Spot{
 				ID:           "11",
 				OpenDate:     localTime().Format(util.SpotDateFormat),
 				RegDate:      localTime().Format(util.SpotDateFormat),
@@ -67,7 +68,7 @@ func TestNewSpot(t *testing.T) {
 				registeredBy: "jjrambo",
 				openDate:     localTime().AddDate(0, 0, 1),
 			},
-			want: Spot{
+			want: data.Spot{
 				ID:           "11",
 				OpenDate:     localTime().AddDate(0, 0, 1).Format(util.SpotDateFormat),
 				RegDate:      localTime().Format(util.SpotDateFormat),
@@ -109,13 +110,13 @@ func TestSpot_key(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			spot := Spot{
+			spot := data.Spot{
 				ID:           tt.fields.ID,
 				OpenDate:     tt.fields.OpenDate.Format(util.SpotDateFormat),
 				RegDate:      tt.fields.RegDate.Format(util.SpotDateFormat),
 				RegisteredBy: tt.fields.RegisteredBy,
 			}
-			if got := spot.key(); got != tt.want {
+			if got := spot.Key(); got != tt.want {
 				t.Errorf("Spot.key() = %v, want %v", got, tt.want)
 			}
 		})
@@ -151,15 +152,15 @@ func Test_formatKey(t *testing.T) {
 }
 
 func cleanup() {
-	os.Remove(DataFilePath())
+	os.Remove(data.FilePath())
 }
 
 func localTime() time.Time {
 	return time.Now().In(time.Local)
 }
 
-func testSpots() []Spot {
-	return []Spot{
+func testSpots() []data.Spot {
+	return []data.Spot{
 		{
 			ID:           "B0",
 			OpenDate:     localTime().AddDate(0, 0, -1).Format(util.SpotDateFormat),
@@ -194,7 +195,7 @@ func testSpots() []Spot {
 }
 
 // registers spots for test and ignores errors
-func registerSpotsForTest(spots []Spot) {
+func registerSpotsForTest(spots []data.Spot) {
 	for _, spot := range spots {
 		od, _ := time.Parse(util.SpotDateFormat, spot.OpenDate)
 		Register(spot.ID, spot.RegisteredBy, od)
@@ -202,22 +203,22 @@ func registerSpotsForTest(spots []Spot) {
 }
 
 func TestSpotBase_Find(t *testing.T) {
-	// defer cleanup()
+	defer cleanup()
 	type fields struct {
-		spots []Spot
+		spots []data.Spot
 	}
 	tests := []struct {
 		name    string
 		fields  fields
-		want    map[string]Spot
+		want    map[string]data.Spot
 		wantErr bool
 	}{
 		{
 			name: "Should find nothing",
 			fields: fields{
-				spots: []Spot{},
+				spots: []data.Spot{},
 			},
-			want:    make(map[string]Spot),
+			want:    make(map[string]data.Spot),
 			wantErr: true,
 		},
 		{
@@ -225,20 +226,20 @@ func TestSpotBase_Find(t *testing.T) {
 			fields: fields{
 				spots: testSpots(),
 			},
-			want: map[string]Spot{
-				formatKey("B1", localTime()): Spot{
+			want: map[string]data.Spot{
+				formatKey("B1", localTime()): data.Spot{
 					ID:           "B1",
 					OpenDate:     localTime().Format(util.SpotDateFormat),
 					RegDate:      localTime().Format(util.SpotDateFormat),
 					RegisteredBy: "YourMom",
 				},
-				formatKey("B2", localTime()): Spot{
+				formatKey("B2", localTime()): data.Spot{
 					ID:           "B2",
 					OpenDate:     localTime().Format(util.SpotDateFormat),
 					RegDate:      localTime().Format(util.SpotDateFormat),
 					RegisteredBy: "YourMom",
 				},
-				formatKey("B4", localTime()): Spot{
+				formatKey("B4", localTime()): data.Spot{
 					ID:           "B4",
 					OpenDate:     localTime().Format(util.SpotDateFormat),
 					RegDate:      localTime().Format(util.SpotDateFormat),
@@ -251,7 +252,7 @@ func TestSpotBase_Find(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cleanup()
-			Open()
+			data.Open()
 			registerSpotsForTest(tt.fields.spots)
 			got, err := Find()
 			if (err != nil) != tt.wantErr {
@@ -268,7 +269,7 @@ func TestSpotBase_Find(t *testing.T) {
 func TestSpotBase_Claim(t *testing.T) {
 	// defer cleanup()
 	type fields struct {
-		spots []Spot
+		spots []data.Spot
 	}
 	type args struct {
 		id   string
@@ -278,7 +279,7 @@ func TestSpotBase_Claim(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    Spot
+		want    data.Spot
 		wantErr bool
 	}{
 		{
@@ -290,7 +291,7 @@ func TestSpotBase_Claim(t *testing.T) {
 				id:   "B1",
 				user: "Captain Fantastic",
 			},
-			want: Spot{
+			want: data.Spot{
 				ID:           "B1",
 				OpenDate:     localTime().Format(util.SpotDateFormat),
 				RegDate:      localTime().Format(util.SpotDateFormat),
@@ -307,7 +308,7 @@ func TestSpotBase_Claim(t *testing.T) {
 				id:   "B5",
 				user: "Captain Fantastic",
 			},
-			want: Spot{
+			want: data.Spot{
 				ID: NotAvailable,
 			},
 			wantErr: true,
@@ -321,7 +322,7 @@ func TestSpotBase_Claim(t *testing.T) {
 				id:   "B3",
 				user: "Captain Fantastic",
 			},
-			want: Spot{
+			want: data.Spot{
 				ID: NotAvailable,
 			},
 			wantErr: true,
@@ -329,7 +330,7 @@ func TestSpotBase_Claim(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			Open()
+			data.Open()
 			cleanup()
 			registerSpotsForTest(tt.fields.spots)
 			got, err := Claim(tt.args.id, tt.args.user)
@@ -347,7 +348,7 @@ func TestSpotBase_Claim(t *testing.T) {
 func TestSpotBase_Register(t *testing.T) {
 	defer cleanup()
 	type fields struct {
-		spots []Spot
+		spots []data.Spot
 	}
 	type args struct {
 		id       string
@@ -358,7 +359,7 @@ func TestSpotBase_Register(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    Spot
+		want    data.Spot
 		wantErr bool
 	}{
 		{
@@ -371,7 +372,7 @@ func TestSpotBase_Register(t *testing.T) {
 				user:     "pparker",
 				openDate: localTime(),
 			},
-			want: Spot{
+			want: data.Spot{
 				ID:           "B11",
 				RegisteredBy: "pparker",
 				OpenDate:     localTime().Format(util.SpotDateFormat),
@@ -389,7 +390,7 @@ func TestSpotBase_Register(t *testing.T) {
 				user:     "pparker",
 				openDate: localTime().AddDate(0, 0, 1),
 			},
-			want: Spot{
+			want: data.Spot{
 				ID:           "B12",
 				RegisteredBy: "pparker",
 				OpenDate:     localTime().AddDate(0, 0, 1).Format(util.SpotDateFormat),
@@ -407,7 +408,7 @@ func TestSpotBase_Register(t *testing.T) {
 				user:     "pparker",
 				openDate: localTime(),
 			},
-			want: Spot{
+			want: data.Spot{
 				ID:           "B1",
 				RegisteredBy: "YourMom",
 				OpenDate:     localTime().Format(util.SpotDateFormat),
@@ -418,7 +419,7 @@ func TestSpotBase_Register(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			Open()
+			data.Open()
 			registerSpotsForTest(tt.fields.spots)
 			got, err := Register(tt.args.id, tt.args.user, tt.args.openDate)
 			if (err != nil) != tt.wantErr {
@@ -435,7 +436,7 @@ func TestSpotBase_Register(t *testing.T) {
 func TestSpotBase_DropRegistration(t *testing.T) {
 	defer cleanup()
 	type fields struct {
-		spots []Spot
+		spots []data.Spot
 	}
 	type args struct {
 		id   string
@@ -472,7 +473,7 @@ func TestSpotBase_DropRegistration(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			Open()
+			data.Open()
 			registerSpotsForTest(tt.fields.spots)
 			if err := DropRegistration(tt.args.id, tt.args.user); (err != nil) != tt.wantErr {
 				t.Errorf("SpotBase.DropRegistration() error = %v, wantErr %v", err, tt.wantErr)
@@ -507,7 +508,7 @@ func TestDropAllRegistrations(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		Open()
+		data.Open()
 		registerSpotsForTest(testSpots())
 		t.Run(tt.name, func(t *testing.T) {
 			DropAllRegistrations(tt.args.user)
