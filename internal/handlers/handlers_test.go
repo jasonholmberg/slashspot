@@ -178,13 +178,13 @@ func testSpots() []data.Spot {
 			ID:           "B1",
 			OpenDate:     time.Now().Format(util.SpotDateFormat),
 			RegDate:      time.Now().Format(util.SpotDateFormat),
-			RegisteredBy: "YourMom",
+			RegisteredBy: "slackuser",
 		},
 		{
 			ID:           "B2",
 			OpenDate:     time.Now().Format(util.SpotDateFormat),
 			RegDate:      time.Now().Format(util.SpotDateFormat),
-			RegisteredBy: "YourMom",
+			RegisteredBy: "slackuser",
 		},
 		{
 			ID:           "B3",
@@ -265,7 +265,7 @@ func Test_handleRegister(t *testing.T) {
 			args: args{
 				params: []string{"reg", "A1"},
 				cmd: &slack.SlashCommand{
-					UserName: "yourmom",
+					UserName: "slackuser",
 				},
 			},
 			want: fmt.Sprintf(SpotRegisteredTemplate, "A1"),
@@ -275,7 +275,7 @@ func Test_handleRegister(t *testing.T) {
 			args: args{
 				params: []string{"reg", "A2", time.Now().AddDate(0, 0, 1).Format(util.SpotDateFormat)},
 				cmd: &slack.SlashCommand{
-					UserName: "yourmom",
+					UserName: "slackuser",
 				},
 			},
 			want: fmt.Sprintf(SpotRegisteredTemplate, "A2"),
@@ -285,7 +285,7 @@ func Test_handleRegister(t *testing.T) {
 			args: args{
 				params: []string{"reg", "A2", time.Now().AddDate(0, 0, -1).Format(util.SpotDateFormat)},
 				cmd: &slack.SlashCommand{
-					UserName: "yourmom",
+					UserName: "slackuser",
 				},
 			},
 			want: fmt.Sprintf(SpotPastDateRegistrationErrorTemplate, time.Now().AddDate(0, 0, -1).Format(util.SpotDateFormat)),
