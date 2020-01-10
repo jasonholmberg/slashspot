@@ -103,7 +103,7 @@ func TestSpot_key(t *testing.T) {
 				ID:           "44",
 				OpenDate:     localTime(),
 				RegDate:      localTime(),
-				RegisteredBy: "YourMom",
+				RegisteredBy: "slackuser",
 			},
 			want: fmt.Sprintf("%s-%s", "44", localTime().Format(util.SpotDateFormat)),
 		},
@@ -171,13 +171,13 @@ func testSpots() []data.Spot {
 			ID:           "B1",
 			OpenDate:     localTime().Format(util.SpotDateFormat),
 			RegDate:      localTime().Format(util.SpotDateFormat),
-			RegisteredBy: "YourMom",
+			RegisteredBy: "slackuser",
 		},
 		{
 			ID:           "B2",
 			OpenDate:     localTime().Format(util.SpotDateFormat),
 			RegDate:      localTime().Format(util.SpotDateFormat),
-			RegisteredBy: "YourMom",
+			RegisteredBy: "slackuser",
 		},
 		{
 			ID:           "B3",
@@ -231,13 +231,13 @@ func TestSpotBase_Find(t *testing.T) {
 					ID:           "B1",
 					OpenDate:     localTime().Format(util.SpotDateFormat),
 					RegDate:      localTime().Format(util.SpotDateFormat),
-					RegisteredBy: "YourMom",
+					RegisteredBy: "slackuser",
 				},
 				formatKey("B2", localTime()): data.Spot{
 					ID:           "B2",
 					OpenDate:     localTime().Format(util.SpotDateFormat),
 					RegDate:      localTime().Format(util.SpotDateFormat),
-					RegisteredBy: "YourMom",
+					RegisteredBy: "slackuser",
 				},
 				formatKey("B4", localTime()): data.Spot{
 					ID:           "B4",
@@ -295,7 +295,7 @@ func TestSpotBase_Claim(t *testing.T) {
 				ID:           "B1",
 				OpenDate:     localTime().Format(util.SpotDateFormat),
 				RegDate:      localTime().Format(util.SpotDateFormat),
-				RegisteredBy: "YourMom",
+				RegisteredBy: "slackuser",
 			},
 			wantErr: false,
 		},
@@ -410,7 +410,7 @@ func TestSpotBase_Register(t *testing.T) {
 			},
 			want: data.Spot{
 				ID:           "B1",
-				RegisteredBy: "YourMom",
+				RegisteredBy: "slackuser",
 				OpenDate:     localTime().Format(util.SpotDateFormat),
 				RegDate:      localTime().Format(util.SpotDateFormat),
 			},
@@ -455,7 +455,7 @@ func TestSpotBase_DropRegistration(t *testing.T) {
 			},
 			args: args{
 				id:   "B1",
-				user: "YourMom",
+				user: "slackuser",
 			},
 			wantErr: false,
 		},
@@ -466,7 +466,7 @@ func TestSpotBase_DropRegistration(t *testing.T) {
 			},
 			args: args{
 				id:   "B1",
-				user: "NotYourMommy",
+				user: "Notslackusermy",
 			},
 			wantErr: true,
 		},
@@ -493,9 +493,9 @@ func TestDropAllRegistrations(t *testing.T) {
 		expectedCount int
 	}{
 		{
-			name: "should drop all registrations for YourMom",
+			name: "should drop all registrations for slackuser",
 			args: args{
-				user: "YourMom",
+				user: "slackuser",
 			},
 			expectedCount: 1,
 		},

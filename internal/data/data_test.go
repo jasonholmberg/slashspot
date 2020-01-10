@@ -20,13 +20,13 @@ var (
 			"ID": "B1",
 			"OpenDate": "2020-01-05",
 			"RegDate": "2020-01-05",
-			"RegisteredBy": "YourMom"
+			"RegisteredBy": "slackuser"
 		},
 		"B2-2020-01-05": {
 			"ID": "B2",
 			"OpenDate": "2020-01-05",
 			"RegDate": "2020-01-05",
-			"RegisteredBy": "YourMom"
+			"RegisteredBy": "slackuser"
 		},
 		"B3-2020-01-06": {
 			"ID": "B3",
@@ -152,13 +152,13 @@ func TestLoad(t *testing.T) {
 					ID:           "B1",
 					OpenDate:     "2020-01-05",
 					RegDate:      "2020-01-05",
-					RegisteredBy: "YourMom",
+					RegisteredBy: "slackuser",
 				},
 				"B2-2020-01-05": Spot{
 					ID:           "B2",
 					OpenDate:     "2020-01-05",
 					RegDate:      "2020-01-05",
-					RegisteredBy: "YourMom",
+					RegisteredBy: "slackuser",
 				},
 				"B3-2020-01-06": Spot{
 					ID:           "B3",
