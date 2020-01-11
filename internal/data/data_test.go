@@ -194,6 +194,7 @@ func TestLoad(t *testing.T) {
 }
 
 func Test_persist(t *testing.T) {
+	defer cleanup()
 	type args struct {
 		s  Spot
 		op string
@@ -201,12 +202,40 @@ func Test_persist(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
+		want int
 	}{
-		// TODO: Add test cases.
+		{
+			name: "should persist",
+			args: args{
+				s: Spot{
+					ID:           "B3",
+					OpenDate:     "2020-01-06",
+					RegDate:      "2020-01-05",
+					RegisteredBy: "FredsMom",
+				},
+				op: add,
+			},
+			want: 1,
+		},
+		{
+			name: "should persist",
+			args: args{
+				s: Spot{
+					ID:           "B3",
+					OpenDate:     "2020-01-06",
+					RegDate:      "2020-01-05",
+					RegisteredBy: "FredsMom",
+				},
+				op: drop,
+			},
+			want: 0,
+		},
 	}
 	for _, tt := range tests {
+		Open()
 		t.Run(tt.name, func(t *testing.T) {
 			persist(tt.args.s, tt.args.op)
+			assert.True(t, len(store) == tt.want)
 		})
 	}
 }
