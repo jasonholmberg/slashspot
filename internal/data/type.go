@@ -17,6 +17,7 @@ type (
 		// RegisteredBy - The user who registered the spot
 		RegisteredBy string
 	}
+
 )
 
 // Key - the key for this spot

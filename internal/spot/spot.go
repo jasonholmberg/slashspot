@@ -38,9 +38,6 @@ func formatKey(id string, date time.Time) string {
 
 // Find - fins all available spots
 func Find() (map[string]data.Spot, error) {
-	lock.Lock()
-	defer data.Save()
-	defer lock.Unlock()
 	openSpots := make(map[string]data.Spot)
 	store, err := data.Load()
 	if err != nil {
@@ -51,7 +48,7 @@ func Find() (map[string]data.Spot, error) {
 		if util.BeforeNow(spot.OpenDate) {
 			log.Printf(">Cleaning up old registration Id: %v, registered by %v for date: %v", spot.ID, spot.RegisteredBy, spot.OpenDate)
 			log.Println()
-			data.Delete(k)
+			data.Drop(spot)
 			continue
 		}
 		if util.AfterNow(spot.OpenDate) {
@@ -68,9 +65,6 @@ func Find() (map[string]data.Spot, error) {
 
 // Claim - claim a spot
 func Claim(id string, user string) (data.Spot, error) {
-	lock.Lock()
-	defer data.Save()
-	defer lock.Unlock()
 	store, err := data.Load()
 	if err != nil {
 		return data.Spot{}, errors.New("error loading spot data")
@@ -80,7 +74,7 @@ func Claim(id string, user string) (data.Spot, error) {
 	for k, spot := range store {
 		if k == claimKey {
 			log.Printf("Spot %v claimed by %v", id, user)
-			data.Delete(k)
+			data.Drop(spot)
 			return spot, nil
 		}
 	}
@@ -91,9 +85,6 @@ func Claim(id string, user string) (data.Spot, error) {
 
 // Register - register a spot
 func Register(id string, user string, openDate time.Time) (data.Spot, error) {
-	lock.Lock()
-	defer data.Save()
-	defer lock.Unlock()
 	store, err := data.Load()
 	if err != nil {
 		return data.Spot{}, errors.New("error loading spot data")
@@ -105,22 +96,19 @@ func Register(id string, user string, openDate time.Time) (data.Spot, error) {
 		}
 	}
 	log.Printf("Registered Id: %v by %v for date: %v", newSpot.ID, newSpot.RegisteredBy, newSpot.OpenDate)
-	data.Insert(newSpot)
+	data.Add(newSpot)
 	return newSpot, nil
 }
 
 // DropRegistration - drop a registration
 func DropRegistration(id string, user string) error {
-	lock.Lock()
-	defer data.Save()
-	defer lock.Unlock()
 	store, err := data.Load()
 	if err != nil {
 		return errors.New("error loading spot data")
 	}
-	for k, spot := range store {
+	for _, spot := range store {
 		if spot.ID == id && spot.RegisteredBy == user {
-			data.Delete(k)
+			data.Drop(spot)
 			return nil
 		}
 	}
@@ -129,13 +117,10 @@ func DropRegistration(id string, user string) error {
 
 // DropAllRegistrations - drop all the registrations for current user
 func DropAllRegistrations(user string) {
-	lock.Lock()
-	defer data.Save()
-	defer lock.Unlock()
 	store, _ := data.Load()
-	for k, spot := range store {
+	for _, spot := range store {
 		if spot.RegisteredBy == user {
-			data.Delete(k)
+			data.Drop(spot)
 		}
 	}
 }

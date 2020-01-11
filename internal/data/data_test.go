@@ -131,7 +131,7 @@ func TestSave(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := Save(); (err != nil) != tt.wantErr {
+			if err := save(); (err != nil) != tt.wantErr {
 				t.Errorf("Save() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -193,70 +193,20 @@ func TestLoad(t *testing.T) {
 	}
 }
 
-func TestDelete(t *testing.T) {
-	defer cleanup()
+func Test_persist(t *testing.T) {
 	type args struct {
-		id string
-	}
-	tests := []struct {
-		name        string
-		args        args
-		shouldExist bool
-	}{
-		{
-			name: "should delete an id that exists",
-			args: args{
-				id: "B1-2020-01-05",
-			},
-			shouldExist: true,
-		},
-		{
-			name: "should not delete an id that doesn't exists",
-			args: args{
-				id: "B11-2020-01-05",
-			},
-			shouldExist: false,
-		},
-	}
-	for _, tt := range tests {
-		setupTestStore()
-		Open()
-		t.Run(tt.name, func(t *testing.T) {
-			if tt.shouldExist {
-				assert.False(t, store[tt.args.id].IsZeroValue())
-			}
-			Delete(tt.args.id)
-			assert.True(t, store[tt.args.id].IsZeroValue())
-		})
-	}
-}
-
-func TestInsert(t *testing.T) {
-	defer cleanup()
-	type args struct {
-		s Spot
+		s  Spot
+		op string
 	}
 	tests := []struct {
 		name string
 		args args
 	}{
-		{
-			name: "should insert",
-			args: args{
-				s: Spot{
-					ID:           "TEST",
-					OpenDate:     "2020-01-05",
-					RegDate:      "2020-01-05",
-					RegisteredBy: "BarneysMom",
-				},
-			},
-		},
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
-		Open()
 		t.Run(tt.name, func(t *testing.T) {
-			Insert(tt.args.s)
-			assert.False(t, store[tt.args.s.Key()].IsZeroValue())
+			persist(tt.args.s, tt.args.op)
 		})
 	}
 }
