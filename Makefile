@@ -1,7 +1,7 @@
 # These are the values we want to pass for VERSION and BUILD
 # git tag 1.0.1
 # git commit -am "One more change after the tags"
-VERSION=1.0.0
+VERSION=1.0.2
 BUILD=`TZ=UTC date -u '+%Y-%m-%dT%H:%M:%SZ'`
 GIT_HASH=`git rev-parse HEAD`
 
@@ -9,7 +9,7 @@ GIT_HASH=`git rev-parse HEAD`
 LDFLAGS=-ldflags "-w -s -X github.com/jasonholmberg/slashspot/config.Version=${VERSION} -X github.com/jasonholmberg/slashspot/config.BuildTime=$(BUILD) -X github.com/jasonholmberg/slashspot/config.GitHash=$(GIT_HASH)"
 
 test: 
-	go test -cover ./... 
+	@go test -cover ./... 
 
 build: clean
 	@echo Building Version: ${VERSION}
@@ -20,6 +20,6 @@ run: build
 	./bin/slashspot-${VERSION}
 
 clean:
-	rm -rf ./bin
+	@rm -rf ./bin
 
 .PHONY: all test build clean
