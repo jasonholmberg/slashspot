@@ -292,6 +292,7 @@ func Test_handleRegister(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		cleanup()
 		data.Open()
 		t.Run(tt.name, func(t *testing.T) {
 			if got := handleRegister(tt.args.cmd, tt.args.params); got != tt.want {
@@ -356,6 +357,7 @@ func Test_handleClaim(t *testing.T) {
 }
 
 func Test_handleHelp(t *testing.T) {
+	defer cleanup()
 	tests := []struct {
 		name string
 		want string
@@ -375,6 +377,7 @@ func Test_handleHelp(t *testing.T) {
 }
 
 func Test_handleUnknown(t *testing.T) {
+	defer cleanup()
 	type args struct {
 		action string
 	}
@@ -401,6 +404,7 @@ func Test_handleUnknown(t *testing.T) {
 }
 
 func Test_handleVersion(t *testing.T) {
+	defer cleanup()
 	tests := []struct {
 		name string
 		want string

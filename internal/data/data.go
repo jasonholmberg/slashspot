@@ -8,9 +8,16 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
+)
+
+const (
+	add = "add"
+	drop = "drop"
 )
 
 var store map[string]Spot
+var lock sync.Mutex
 
 // Open - open the spot store
 func Open() {
@@ -23,8 +30,7 @@ func IsOpen() bool {
 	return store != nil
 }
 
-// Save - saves the spot stroe
-func Save() error {
+func save() error {
 	// Save to disk
 	os.MkdirAll(os.Getenv("SPOT_DATA_DIR"), os.ModePerm)
 	f, err := os.Create(FilePath())
@@ -52,20 +58,33 @@ func Load() (map[string]Spot, error) {
 	defer f.Close()
 	if err != nil {
 		log.Print("No data file to load, creating one")
-		Save()
+		save()
 	}
 	unmarshal(f, &store)
 	return store, nil
 }
 
-// Delete - deletes a spot from the store by id. Save should be called after this operation.
-func Delete(id string) {
-	delete(store, id)
+// Drop - drop the spot
+func Drop(s Spot) {
+	persist(s, drop)
 }
 
-// Insert - adds a spot to the store. Save should be called after this operation.
-func Insert(s Spot) {
-	store[s.Key()] = s
+// Add - add the spot
+func Add(s Spot) {
+	persist(s, add)
+}
+
+// Persist - applys changes to the map and saves
+func persist(s Spot, op string) {
+	lock.Lock()
+	defer lock.Unlock()
+	defer save()
+	if op == add {
+		store[s.Key()] = s
+	}
+	if op == drop {
+		delete(store, s.Key())
+	}
 }
 
 // FilePath - path to data file

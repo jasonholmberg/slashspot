@@ -35,6 +35,27 @@ func TestBeforeNow(t *testing.T) {
 			},
 			want: false,
 		},
+		{
+			name: "should not be before",
+			args: args{
+				test: time.Now().Format(SpotDateFormat),
+			},
+			want: false,
+		},
+		{
+			name: "should not be before",
+			args: args{
+				test: time.Now().AddDate(0, 1, 1).Format(SpotDateFormat),
+			},
+			want: false,
+		},
+		{
+			name: "should not be before",
+			args: args{
+				test: time.Now().AddDate(1, 1, 1).Format(SpotDateFormat),
+			},
+			want: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -55,21 +76,42 @@ func TestAfterNow(t *testing.T) {
 		want bool
 	}{
 		{
-			name: "should be after",
+			name: "should be after 0",
 			args: args{
 				test: time.Now().AddDate(0, 0, 1).Format(SpotDateFormat),
 			},
 			want: true,
 		},
 		{
-			name: "should not be after",
+			name: "should be after 1",
+			args: args{
+				test: "2020-02-02",
+			},
+			want: true,
+		},
+		{
+			name: "should be after 2",
+			args: args{
+				test: time.Now().AddDate(0, 1, 1).Format(SpotDateFormat),
+			},
+			want: true,
+		},
+		{
+			name: "should be after 3",
+			args: args{
+				test: time.Now().AddDate(1, 1, 1).Format(SpotDateFormat),
+			},
+			want: true,
+		},
+		{
+			name: "should not be after 0",
 			args: args{
 				test: time.Now().AddDate(0, 0, -1).Format(SpotDateFormat),
 			},
 			want: false,
 		},
 		{
-			name: "should not be after",
+			name: "should not be after 1",
 			args: args{
 				test: time.Now().Format(SpotDateFormat),
 			},
