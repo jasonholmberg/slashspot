@@ -267,7 +267,7 @@ func TestSpotBase_Find(t *testing.T) {
 }
 
 func TestSpotBase_Claim(t *testing.T) {
-	defer cleanup()
+	// defer cleanup()
 	type fields struct {
 		spots []data.Spot
 	}
