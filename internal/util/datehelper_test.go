@@ -85,19 +85,12 @@ func TestAfterNow(t *testing.T) {
 		{
 			name: "should be after 1",
 			args: args{
-				test: "2020-02-02",
-			},
-			want: true,
-		},
-		{
-			name: "should be after 2",
-			args: args{
 				test: time.Now().AddDate(0, 1, 1).Format(SpotDateFormat),
 			},
 			want: true,
 		},
 		{
-			name: "should be after 3",
+			name: "should be after 2",
 			args: args{
 				test: time.Now().AddDate(1, 1, 1).Format(SpotDateFormat),
 			},
